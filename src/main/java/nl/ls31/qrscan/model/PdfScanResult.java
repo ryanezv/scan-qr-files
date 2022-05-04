@@ -24,6 +24,7 @@ public class PdfScanResult {
     private final SimpleObjectProperty<ResultStatus> resultStatus;
     private final int qrCodePage;
     private final SimpleStringProperty qrCode;
+    private final String htmlData;
 
     private final SimpleObjectProperty<Path> inputFilePath;
     private final SimpleObjectProperty<Path> outputFilePath;
@@ -37,7 +38,7 @@ public class PdfScanResult {
      * @param qrCodePage   the page that was scanned
      * @param qrCode       the QR code, if found, otherwise ""
      */
-    public PdfScanResult(PdfScanner pdf, ResultStatus resultStatus, int qrCodePage, String qrCode) {
+    public PdfScanResult(PdfScanner pdf, ResultStatus resultStatus, int qrCodePage, String qrCode, String htmlData) {
         this.inputFilePath = new SimpleObjectProperty<>(pdf.getPath());
         this.outputFilePath = inputFilePath;
         this.isRenamed = new SimpleBooleanProperty(false);
@@ -54,6 +55,7 @@ public class PdfScanResult {
         }
         this.resultStatus = new SimpleObjectProperty<>(resultStatus);
         this.qrCodePage = qrCodePage;
+        this.htmlData = htmlData.trim().replace(",", "-");
         this.qrCode = new SimpleStringProperty(qrCode);
     }
 
@@ -186,6 +188,13 @@ public class PdfScanResult {
     }
 
     /**
+	 * @return the htmlData
+	 */
+	public String getHtmlData() {
+		return htmlData;
+	}
+
+	/**
      * Possible status reports for QR code scanned PDF files.
      */
     public enum ResultStatus {

@@ -45,7 +45,7 @@ public class CsvLogWriter {
         StringBuilder csvBuffer = new StringBuilder();
 
         // CSV header
-        csvBuffer.append("InputPath" + SEP + "RenamedPath" + SEP + "FileCreated" + SEP + "PageCount" + SEP + "QRCodeFound" + SEP + "QRCodePage" + SEP + "QRcode").append(LSEP);
+        csvBuffer.append("InputPath" + SEP + "RenamedPath" + SEP + "FileCreated" + SEP + "PageCount" + SEP + "QRCodeFound" + SEP + "QRCodePage" + SEP + "QRcode" + SEP + "HTML").append(LSEP);
 
         // CSV content: one line for every result
         for (PdfScanResult result : results) {
@@ -59,7 +59,8 @@ public class CsvLogWriter {
             csvBuffer.append(result.getPageCount()).append(SEP);
             csvBuffer.append(QUOTE).append(result.getQrCodeScanStatus().toString()).append(QUOTE).append(SEP);
             csvBuffer.append(result.getQrCodePage()).append(SEP);
-            csvBuffer.append(QUOTE).append(result.getQrCode()).append(QUOTE).append(LSEP);
+            csvBuffer.append(result.getQrCode()).append(SEP);
+            csvBuffer.append(QUOTE).append(result.getHtmlData()).append(QUOTE).append(LSEP);
         }
 
         return csvBuffer.toString();

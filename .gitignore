@@ -73,3 +73,5 @@ fabric.properties
 /target/
 /.idea/
 /dependency-reduced-pom.xml
+
+docs/

@@ -6,7 +6,13 @@ import nl.ls31.qrscan.model.PdfScanResult;
 import org.tinylog.Logger;
 
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -135,16 +141,22 @@ public class ScanPdfsTask extends Task<List<PdfScanResult>> {
 
             try {
                 String qrCode = pdf.getQRCode(qrCodePage, useFileAttributes, writeFileAttributes);
+                
+                // add functionality @RYV
+                String htmlData = "No fue posible obtener la data de la URL: "+ qrCode;
+                if(qrCode != null && qrCode.contains("http")) {
+                	htmlData = getDataURL(qrCode);
+                }
                 Logger.info("Found QR code " + qrCode + " in " + pdf.getPath().getFileName() + ".");
-                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.QR_CODE_FOUND, qrCodePage, qrCode));
+                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.QR_CODE_FOUND, qrCodePage, qrCode, htmlData));
                 success++;
             } catch (IOException e) {
                 Logger.warn(e, "!Unable to access " + pdf.getPath().getFileName() + " or page not found.");
-                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.NO_FILE_ACCESS, qrCodePage, ""));
+                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.NO_FILE_ACCESS, qrCodePage, "", ""));
                 failed++;
             } catch (NotFoundException e) {
                 Logger.warn(e, "!Unable to find QR code at specified page in " + pdf.getPath().getFileName() + ".");
-                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.NO_QR_CODE, qrCodePage, ""));
+                results.add(new PdfScanResult(pdf, PdfScanResult.ResultStatus.NO_QR_CODE, qrCodePage, "", ""));
                 failed++;
             }
         }
@@ -153,5 +165,36 @@ public class ScanPdfsTask extends Task<List<PdfScanResult>> {
         Logger.info(summaryMessage);
         updateMessage(summaryMessage);
         return results;
+    }
+    
+    protected String getDataURL(String url) {
+    	
+    	URL tempURL;
+		try {
+			tempURL = new URL(url);
+			HttpURLConnection con = (HttpURLConnection) tempURL.openConnection();
+	    	con.setRequestMethod("GET");
+	    	
+	    	System.out.println("Response code: "+ con.getResponseCode());
+	    	
+	    	BufferedReader in = new BufferedReader(
+			  new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer content = new StringBuffer();
+			while ((inputLine = in.readLine()) != null) {
+			    content.append(inputLine);
+			}
+			in.close();
+			con.disconnect();
+	    			
+	    	System.out.println("Response content:"+ content.toString());
+	    	
+	    	return content.toString();
+	    			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
     }
 }
